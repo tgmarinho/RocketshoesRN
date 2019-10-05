@@ -99,10 +99,11 @@ export const Minus = styled(Icons).attrs({
 export const CartAmount = styled.TextInput.attrs({
   editable: false,
 })`
-  width: 40px;
+  width: 60px;
   background: #fff;
   color: #000;
   margin: 0 5px 0 5px;
+  padding: 0 5px 0 5px;
   border-radius: 5px;
   border-color: #999;
 `;
@@ -118,7 +119,8 @@ export const FinishButton = styled.TouchableOpacity.attrs({
   background: ${colors.primary};
   margin: 10px;
   padding: 10px;
-  width: 300px;
+  flex-direction: row;
+  align-self: stretch;
   height: 50px;
   border-radius: 4px;
   justify-content: center;
@@ -140,5 +142,27 @@ export const CartTotalText = styled.Text`
 
 export const CartTotalPrice = styled.Text`
   font-weight: bold;
+  font-size: 26px;
+  margin-top: 10px;
+`;
+
+export const EmptyCart = styled.View`
+  margin-top: 30px;
+  justify-content: space-evenly;
+  align-items: center;
+  width: auto;
+  height: 180px;
+  background: ${colors.light};
+`;
+
+export const EmptyCartIcon = styled(Icon).attrs({
+  name: 'remove-shopping-cart',
+  color: `${colors.primary}`,
+  size: 40,
+})``;
+
+export const EmptyCartText = styled.Text`
   font-size: 22px;
+  font-weight: bold;
+  color: #999;
 `;

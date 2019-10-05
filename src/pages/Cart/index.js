@@ -1,4 +1,8 @@
 import React from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { formatPrice } from '../../util/format';
+import * as CartActions from '../../store/models/cart/actions';
 
 import {
   Container,
@@ -23,9 +27,19 @@ import {
   FinishButtonText,
   OpButton,
   TotalContainer,
+  EmptyCart,
+  EmptyCartIcon,
+  EmptyCartText,
 } from './styles';
 
-export default function Cart() {
+function Cart({ cart, removeFromCart, updateAmountRequest, total }) {
+  function increment(product) {
+    updateAmountRequest(product.id, product.amount + 1);
+  }
+  function decrement(product) {
+    updateAmountRequest(product.id, product.amount - 1);
+  }
+
   function renderCart(product) {
     return (
       <CartItem>
@@ -35,22 +49,25 @@ export default function Cart() {
             <CartTitle>{product.title}</CartTitle>
             <CartPrice>{product.price}</CartPrice>
           </Column>
-          <CartDeleteButton>
+          <CartDeleteButton onPress={() => removeFromCart(product.id)}>
             <CartDelete />
           </CartDeleteButton>
         </Row>
         <Row>
           <Wrapper>
             <Buttons>
-              <OpButton>
+              <OpButton
+                disabled={product.amount <= 1}
+                onPress={() => decrement(product)}
+              >
                 <Minus />
               </OpButton>
-              <CartAmount value={3} />
-              <OpButton>
+              <CartAmount value={String(product.amount)} />
+              <OpButton onPress={() => increment(product)}>
                 <Plus />
               </OpButton>
             </Buttons>
-            <CartSubTotal>R$ 2.123,22</CartSubTotal>
+            <CartSubTotal>{product.subtotal}</CartSubTotal>
           </Wrapper>
         </Row>
       </CartItem>
@@ -59,62 +76,49 @@ export default function Cart() {
 
   return (
     <Container>
-      <CartList
-        data={[
-          {
-            id: 1,
-            title: 'Tênis de Caminhada Leve Confortável',
-            price: 179.9,
-            image:
-              'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis1.jpg',
-          },
-          {
-            id: 2,
-            title: 'Tênis VR Caminhada Confortável Detalhes Couro Masculino',
-            price: 139.9,
-            image:
-              'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis2.jpg',
-          },
-          {
-            id: 3,
-            title: 'Tênis Adidas Duramo Lite 2.0',
-            price: 219.9,
-            image:
-              'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis3.jpg',
-          },
-          {
-            id: 5,
-            title: 'Tênis VR Caminhada Confortável Detalhes Couro Masculino',
-            price: 139.9,
-            image:
-              'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis2.jpg',
-          },
-          {
-            id: 6,
-            title: 'Tênis Adidas Duramo Lite 2.0',
-            price: 219.9,
-            image:
-              'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis3.jpg',
-          },
-          {
-            id: 4,
-            title: 'Tênis de Caminhada Leve Confortável',
-            price: 179.9,
-            image:
-              'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis1.jpg',
-          },
-        ]}
-        renderItem={({ item }) => renderCart(item)}
-        keyExtractor={item => item.id}
-      />
+      {cart.length ? (
+        <>
+          <CartList
+            data={cart}
+            renderItem={({ item }) => renderCart(item)}
+            keyExtractor={item => item.id}
+          />
 
-      <TotalContainer>
-        <CartTotalText>TOTAL</CartTotalText>
-        <CartTotalPrice>R$ 2312312</CartTotalPrice>
-        <FinishButton>
-          <FinishButtonText>FINALIZAR PEDIDO</FinishButtonText>
-        </FinishButton>
-      </TotalContainer>
+          <TotalContainer>
+            <CartTotalText>TOTAL</CartTotalText>
+            <CartTotalPrice>{total}</CartTotalPrice>
+            <FinishButton>
+              <FinishButtonText>FINALIZAR PEDIDO</FinishButtonText>
+            </FinishButton>
+          </TotalContainer>
+        </>
+      ) : (
+        <EmptyCart>
+          <EmptyCartIcon />
+          <EmptyCartText>Seu carrinho está vazio!</EmptyCartText>
+        </EmptyCart>
+      )}
     </Container>
   );
 }
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(CartActions, dispatch);
+
+const mapStateToProps = state => ({
+  cart: state.cart.map(product => ({
+    ...product,
+    price: formatPrice(product.price),
+    subtotal: formatPrice(product.price * product.amount),
+  })),
+  total: formatPrice(
+    state.cart.reduce((total, product) => {
+      return total + product.price * product.amount;
+    }, 0)
+  ),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Cart);

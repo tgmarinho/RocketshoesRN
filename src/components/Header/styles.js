@@ -3,6 +3,9 @@ import colors from '../../styles/colors';
 
 import logo from '../../assets/logo.png';
 
+
+export const Button = styled.TouchableOpacity``;
+
 export const Wrapper = styled.SafeAreaView`
   flex: 0;
   background: ${colors.dark};
