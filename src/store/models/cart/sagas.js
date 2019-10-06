@@ -1,8 +1,8 @@
 import { call, select, put, all, takeLatest } from 'redux-saga/effects';
+import { Alert } from 'react-native';
 import api from '../../../services/api';
 import { addToCartSuccess, updateAmountSuccess } from './actions';
 import { formatPrice } from '../../../util/format';
-import { Alert } from 'react-native';
 import NavigationService from '../../../services/navigation';
 
 function* addToCart({ id }) {
